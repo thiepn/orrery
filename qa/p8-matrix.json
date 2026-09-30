@@ -1,0 +1,80 @@
+{
+  "results": [
+    {
+      "name": "embedded P8 suite",
+      "ok": true,
+      "detail": "35/35"
+    },
+    {
+      "name": "natural body class active",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "natural palette active",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "look button synchronized",
+      "ok": true,
+      "detail": "LOOK \u00b7 NATURAL"
+    },
+    {
+      "name": "v5 share state includes natural/all labels",
+      "ok": true,
+      "detail": "#v5d0.000s7z1.00t-1r-0.966q0v1a1l2p1"
+    },
+    {
+      "name": "projected Saturn ring basis is non-degenerate",
+      "ok": true,
+      "detail": "{'u': {'x': -0.8277582236426653, 'y': 0.3218251071720262, 'depth': 0.4596138853272966}, 'v': {'x': -0.49516858745662384, 'y': -0.8042319660812458, 'depth': -0.3286624632193312}, 'un': 0.8881188413801087, 'vn': 0.9444474497136905}"
+    },
+    {
+      "name": "scene light vector normalized",
+      "ok": true,
+      "detail": "{'x': -0.9770359525814684, 'y': -0.0851208307331391, 'z': 0.19533353920544005, 'n': 1}"
+    },
+    {
+      "name": "appearance setting applies antique",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "visual settings persist in prefs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "minimal labels encoded in share state",
+      "ok": true,
+      "detail": "#v5d0.000s7z1.18t6r-0.183q0v1a1l0p1"
+    },
+    {
+      "name": "Halley near 2061 perihelion is active",
+      "ok": true,
+      "detail": "0.58597811"
+    },
+    {
+      "name": "dust-tail velocity basis finite",
+      "ok": true,
+      "detail": "{'x': -0.9599560150662912, 'y': 0.2801507614447025}"
+    },
+    {
+      "name": "P8 settings panel fits mobile",
+      "ok": true,
+      "detail": "{'x': 12, 'y': 225.40625, 'width': 366, 'height': 548.59375}"
+    },
+    {
+      "name": "no horizontal overflow in natural mobile mode",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Observer panel fits Natural mobile",
+      "ok": true,
+      "detail": "{'x': 12, 'y': 166.328125, 'width': 366, 'height': 607.671875}"
+    }
+  ],
+  "errors": []
+}

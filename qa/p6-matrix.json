@@ -1,0 +1,130 @@
+{
+  "results": [
+    {
+      "name": "Observe mode opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Observer RA/Dec populated",
+      "ok": true,
+      "detail": "09h 59m / +11\u00b0 41\u2032"
+    },
+    {
+      "name": "Observer Alt/Az populated",
+      "ok": true,
+      "detail": "-23.0\u00b0 / 29.4\u00b0"
+    },
+    {
+      "name": "Moon topocentric distance populated",
+      "ok": true,
+      "detail": "378k km"
+    },
+    {
+      "name": "Moon phase populated",
+      "ok": true,
+      "detail": "15% \u00b7 WANING CRESCENT"
+    },
+    {
+      "name": "rise/set calculation returns values",
+      "ok": true,
+      "detail": "03:42 / 17:35"
+    },
+    {
+      "name": "Observer follow selects Moon",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3D orbital projection changes inclined body",
+      "ok": true,
+      "detail": "[79.588924492979, -165.61596510923738]->[79.588924492979, -83.82202245924421]"
+    },
+    {
+      "name": "3D body class active",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Learn mode opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Retrograde demo follows Mars",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Education banner appears",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Lesson content explains geocentric reversal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Lunar phase events include all principal phases",
+      "ok": true,
+      "detail": "['LAST QUARTER', 'NEW MOON', 'FIRST QUARTER', 'FULL MOON', 'LAST QUARTER', 'NEW MOON']"
+    },
+    {
+      "name": "2026 December solstice date is correct to day",
+      "ok": true,
+      "detail": "[{'label': 'DECEMBER SOLSTICE', 'date': '21 DEC 2026'}]"
+    },
+    {
+      "name": "Mars retrograde stations include begin and resume",
+      "ok": true,
+      "detail": "['retrograde motion begins', 'direct motion resumes']"
+    },
+    {
+      "name": "Pluto layer can be hidden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Pluto layer restores",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mobile mode button enters Observe",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Observer panel fits mobile viewport",
+      "ok": true,
+      "detail": "{'x': 12, 'y': 166.328125, 'width': 366, 'height': 607.671875}"
+    },
+    {
+      "name": "Mobile mode button cycles Observe \u2192 Learn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Learn panel fits mobile viewport",
+      "ok": true,
+      "detail": "{'x': 12, 'y': 200.09375, 'width': 366, 'height': 573.90625}"
+    },
+    {
+      "name": "Mobile mode button cycles Learn \u2192 Explore",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No horizontal overflow in P6 panels",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Embedded P6 unit suite passes",
+      "ok": true,
+      "detail": "35/35"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,110 @@
+{
+  "results": [
+    {
+      "name": "first-run onboarding appears",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "onboarding completes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "date panel opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "direct date entry works",
+      "ok": true,
+      "detail": "1 JAN 2030"
+    },
+    {
+      "name": "timeline scrubber changes date",
+      "ok": true,
+      "detail": "1190.5159722222222->1373.0159722222222"
+    },
+    {
+      "name": "true-distance scale toggles",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "settings opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "setting updates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "almanac opens",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "almanac horizon filter works",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "almanac event filter works",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "wanderer selection follows Jupiter",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "body card visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "body details expand",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "earth distance populated",
+      "ok": true,
+      "detail": "4.715 AU"
+    },
+    {
+      "name": "reverse playback speed available",
+      "ok": true,
+      "detail": "-30"
+    },
+    {
+      "name": "PNG export source is valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "mobile toolbar stays one row",
+      "ok": true,
+      "detail": "{'x': 12, 'y': 774, 'width': 366, 'height': 58}"
+    },
+    {
+      "name": "no horizontal document overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "desktop toolbar fits viewport",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "embedded unit suite passes",
+      "ok": true,
+      "detail": "35/35"
+    }
+  ],
+  "errors": []
+}

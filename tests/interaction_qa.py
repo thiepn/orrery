@@ -1,0 +1,53 @@
+from playwright.sync_api import sync_playwright
+import json, pathlib
+ROOT=pathlib.Path(__file__).resolve().parents[1]
+html=(ROOT/'index.html').read_text()
+results=[]; errors=[]
+def ck(name, cond, detail=''):
+    results.append({'name':name,'ok':bool(cond),'detail':detail})
+with sync_playwright() as p:
+    chromium='/usr/bin/chromium' if pathlib.Path('/usr/bin/chromium').exists() else None
+    b=p.chromium.launch(headless=not bool(chromium), executable_path=chromium, args=['--no-sandbox','--disable-dev-shm-usage'] if chromium else [])
+    page=b.new_page(viewport={'width':390,'height':844}, accept_downloads=True)
+    page.on('pageerror',lambda e: errors.append(str(e)))
+    page.on('console',lambda m: errors.append('console '+m.type+': '+m.text) if m.type=='error' else None)
+    page.set_content(html,wait_until='load'); page.wait_for_timeout(500)
+    ck('first-run onboarding appears',page.locator('#onboarding').is_visible())
+    page.click('#onboardNext'); page.click('#onboardNext'); page.click('#onboardNext'); page.wait_for_timeout(100)
+    ck('onboarding completes',not page.locator('#onboarding').is_visible())
+    page.click('#dateBtn'); ck('date panel opens',page.locator('#datePanel').is_visible())
+    page.fill('#dateInput','2030-01-01'); page.click('#dateGo'); page.wait_for_timeout(100)
+    ck('direct date entry works','1 JAN 2030' in page.locator('#dateStr').inner_text(),page.locator('#dateStr').inner_text())
+    before=page.evaluate('simDays'); page.locator('#timeline').fill('750'); page.locator('#timeline').dispatch_event('input'); after=page.evaluate('simDays')
+    ck('timeline scrubber changes date',abs(after-before)>1,f'{before}->{after}')
+    page.click('#dateClose')
+    page.click('#moreBtn'); page.click('#scaleBtn'); page.wait_for_timeout(100)
+    ck('true-distance scale toggles',page.evaluate("scaleMode==='true'"))
+    page.click('#moreBtn'); page.click('#settingsBtn'); ck('settings opens',page.locator('#settingsPanel').is_visible())
+    page.locator('#autoHideSetting').check(); page.locator('#autoHideSetting').dispatch_event('change'); ck('setting updates',page.evaluate('prefs.autoHide===true'))
+    page.click('#settingsClose')
+    page.click('#moreBtn'); page.click('#almanacBtn'); page.wait_for_timeout(200)
+    ck('almanac opens',page.locator('#almanac').is_visible())
+    page.select_option('#alHorizon','30'); page.wait_for_timeout(150); ck('almanac horizon filter works',page.evaluate("prefs.alHorizon===30"))
+    page.select_option('#alType','alignment'); ck('almanac event filter works',page.evaluate("prefs.alType==='alignment'"))
+    page.keyboard.press('Escape')
+    page.click('#moreBtn'); page.click('#planetBtn'); page.locator('.lg-row').filter(has_text='Jupiter').click(); page.wait_for_timeout(150)
+    ck('wanderer selection follows Jupiter',page.evaluate("tracked&&tracked.name==='Jupiter'"))
+    ck('body card visible',page.locator('#card').is_visible())
+    page.click('#cardDetailsBtn'); ck('body details expand',page.locator('#cardExtra').is_visible())
+    ck('earth distance populated',bool(page.locator('#cardEarthDist').inner_text().strip()),page.locator('#cardEarthDist').inner_text())
+    page.evaluate('setSpeed(2)'); ck('reverse playback speed available',page.evaluate('SPEEDS[speedIx]<0'),str(page.evaluate('SPEEDS[speedIx]')))
+    # export function should emit a real blob and not throw
+    blob_ok=page.evaluate("new Promise(r=>canvas.toBlob(b=>r(!!b&&b.size>100),'image/png'))")
+    ck('PNG export source is valid',blob_ok)
+    box=page.locator('.controls').bounding_box(); ck('mobile toolbar stays one row',box and box['height']<64,str(box))
+    ck('no horizontal document overflow',page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'))
+    page.screenshot(path=str(ROOT/'qa'/'p5-mobile-390x844.png'))
+    # desktop
+    page.set_viewport_size({'width':1366,'height':768}); page.wait_for_timeout(250)
+    ck('desktop toolbar fits viewport',page.evaluate("document.querySelector('.controls').getBoundingClientRect().width < innerWidth-24"))
+    page.screenshot(path=str(ROOT/'qa'/'p5-desktop-1366x768.png'))
+    unit=page.evaluate('OrreryTests.run()'); ck('embedded unit suite passes',unit['failed']==0,f"{unit['passed']}/{unit['total']}")
+    b.close()
+report={'results':results,'errors':errors};(ROOT/'qa'/'interaction-matrix.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
+if errors or any(not r['ok'] for r in results): raise SystemExit(1)

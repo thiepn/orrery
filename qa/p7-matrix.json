@@ -1,0 +1,80 @@
+{
+  "results": [
+    {
+      "name": "precision endpoint accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "precision health check succeeds",
+      "ok": true,
+      "detail": "Precision proxy online \u00b7 NASA/JPL Horizons API."
+    },
+    {
+      "name": "precision observer result loads",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "apparent RA/Dec populated",
+      "ok": true,
+      "detail": "123.456789\u00b0 / -12.345678\u00b0"
+    },
+    {
+      "name": "light time populated",
+      "ok": true,
+      "detail": "3.79700 min"
+    },
+    {
+      "name": "constellation populated",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "export enabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "osculating elements load",
+      "ok": true,
+      "detail": "EPOCH JD: 2461312.5\nSEMI-MAJOR AXIS: 1.5237 AU\nECCENTRICITY: 0.0934\nINCLINATION: 1.85\u00b0\nASCENDING NODE: 49.56\u00b0\nARGUMENT PERIAPSIS: 286.5\u00b0\nMEAN ANOMALY: 10.2\u00b0\nTRUE ANOMALY: 11.1\u00b0\nPERIAPSIS: 1.381 AU\nPERIOD: 686.98 d"
+    },
+    {
+      "name": "precision event scan renders",
+      "ok": true,
+      "detail": "SOLAR ECLIPSE\n2026-Oct-02 08:10:00 \u00b7 center separation 0.1234\u00b0"
+    },
+    {
+      "name": "Horizons object lookup renders match",
+      "ok": true,
+      "detail": "99942 Apophis\nasteroid (integrated barycenter) \u00b7 DES 2004 MN4 \u00b7 SPK 2099942"
+    },
+    {
+      "name": "lookup selects exact Horizons command",
+      "ok": true,
+      "detail": "2099942"
+    },
+    {
+      "name": "arbitrary looked-up target can fetch precision data",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "precision observer panel fits mobile viewport",
+      "ok": true,
+      "detail": "{'x': 12, 'y': 166.328125, 'width': 366, 'height': 607.671875}"
+    },
+    {
+      "name": "precision panel has no horizontal overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "embedded scientific suite still passes",
+      "ok": true,
+      "detail": "35/35"
+    }
+  ],
+  "errors": []
+}

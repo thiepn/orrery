@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="description" content="An interactive heliocentric orrery with observer tools, optional JPL Horizons precision ephemerides, Moon and Pluto layers, guided astronomy lessons, and an astronomical almanac."/>
+<meta name="theme-color" content="#f2ead9"/>
+<meta name="color-scheme" content="light"/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="application-name" content="The Orrery"/>
+<meta name="orrery-precision-endpoint" content=""/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="The Orrery"/>
+<meta name="robots" content="index,follow"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="The Orrery"/>
+<meta property="og:description" content="Explore the Solar System, plan observations with offline or JPL Horizons precision ephemerides, and learn orbital astronomy."/>
+<link rel="icon" href="icons/icon-192.png"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<title>The Orrery</title>
+<style>
+/*__APP_CSS__*/
+</style>
+</head>
+<body>
+<canvas id="scene" tabindex="0" aria-label="Interactive heliocentric orrery" aria-describedby="sceneHelp sceneStatus" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown PageUp PageDown Home Space A C D R T ? [ ]"></canvas>
+<div id="sceneHelp" class="sr-only">Use left and right arrow keys to rotate the plate, up and down arrows or plus and minus to zoom, Page Up and Page Down to step the date, D to open the timeline, left and right brackets to cycle celestial bodies, and the Wanderers control to select a celestial body.</div>
+<div id="sceneStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="boot"><span>winding the mechanism…</span></div>
+
+<header class="masthead">
+  <div class="over">Heliocentric model · hand-tinted plates</div>
+  <h1>The Orrery</h1>
+  <div class="sub">Eight painted worlds, Moon and Pluto layers, observer and precision tools, guided lessons, and an almanac of things to come.</div>
+</header>
+<div class="scale-note" id="scaleNote" aria-hidden="true"><b>JPL-based positions</b> · logarithmic orbit scale</div>
+<nav class="mode-tabs" id="modeTabs" aria-label="Orrery mode">
+  <button type="button" data-mode="explore" class="active" aria-pressed="true">EXPLORE</button>
+  <button type="button" data-mode="observe" aria-pressed="false">OBSERVE</button>
+  <button type="button" data-mode="learn" aria-pressed="false">LEARN</button>
+</nav>
+
+<aside class="legend" id="legend" aria-label="Celestial body selector"></aside>
+
+<aside class="card" id="card">
+  <div class="card-over" id="cardOver"></div>
+  <h2 id="cardName"></h2>
+  <div class="card-rows">
+    <div><span>MEAN DISTANCE</span><b id="cardMean"></b></div>
+    <div><span>ECCENTRICITY</span><b id="cardEcc"></b></div>
+    <div><span>PERIOD</span><b id="cardPeriod"></b></div>
+  </div>
+  <div class="card-live" id="cardLive"></div>
+  <button class="card-details-btn" id="cardDetailsBtn" type="button" aria-expanded="false" aria-controls="cardExtra">DETAILS</button>
+  <div class="card-extra" id="cardExtra" hidden>
+    <div><span>EARTH DISTANCE</span><b id="cardEarthDist"></b></div>
+    <div><span>ORBITAL SPEED</span><b id="cardSpeed"></b></div>
+    <div><span>INCLINATION</span><b id="cardIncl"></b></div>
+    <div><span>ROTATION</span><b id="cardRotation"></b></div>
+    <div><span>ELEMENT FIT</span><b id="cardFit"></b></div>
+  </div>
+  <p id="cardNote"></p>
+</aside>
+
+<aside class="almanac" id="almanac" aria-labelledby="alTitle">
+  <div class="al-head"><div class="al-title" id="alTitle">Almanac <em>·</em> next two years</div><button class="al-refresh" id="alRefresh" type="button">UPDATE</button></div>
+  <div class="al-base" id="alBaseText"></div>
+  <div class="al-filters" aria-label="Almanac filters">
+    <label>SPAN<select id="alHorizon"><option value="30">30 DAYS</option><option value="365">1 YEAR</option><option value="730" selected>2 YEARS</option><option value="3652">10 YEARS</option></select></label>
+    <label>WORLD<select id="alBody"><option value="all">ALL</option></select></label>
+    <label>EVENT<select id="alType"><option value="all">ALL EVENTS</option><option value="alignment">ALIGNMENTS</option><option value="elongation">ELONGATIONS</option><option value="perihelion">PERIHELIA</option><option value="stationary">RETROGRADE STATIONS</option><option value="lunar">MOON PHASES</option><option value="season">SEASONS</option></select></label>
+  </div>
+  <div id="alList"></div>
+  <div class="al-foot">JPL APPROXIMATE PLANET ELEMENTS · 1800–2050 HIGHER-ACCURACY FIT · BROADER MODEL 3000 BC–3000 AD · PRESS A TO CLOSE</div>
+</aside>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<footer class="controls">
+  <button id="playBtn" class="ctl-btn" aria-label="Pause">
+    <svg id="icoPause" width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5v9M9 1.5v9" stroke="currentColor" stroke-width="1.6"/></svg>
+    <svg id="icoPlay" class="hide" width="12" height="12" viewBox="0 0 12 12"><path d="M3 1.5v9l7-4.5z" fill="currentColor"/></svg>
+  </button>
+  <div class="detents" id="detents"></div>
+  <div class="speed-label" id="speedLabel"></div>
+  <div class="vr"></div>
+  <button class="date date-btn" id="dateBtn" type="button" aria-controls="datePanel" aria-expanded="false"><span class="day" id="dayN"></span><span id="dateStr"></span></button>
+  <div class="vr"></div>
+  <div class="secondary-actions" id="secondaryActions" aria-label="Secondary controls">
+    <button class="txt-btn" id="todayBtn">TODAY</button>
+    <button class="txt-btn" id="almanacBtn" aria-controls="almanac" aria-expanded="false">ALMANAC</button>
+    <button class="txt-btn" id="copyBtn">SHARE</button>
+    <button class="txt-btn" id="exportBtn">SAVE PNG</button>
+    <button class="txt-btn" id="scaleBtn">SCALE · LOG</button>
+    <button class="txt-btn" id="viewBtn">VIEW · FLAT</button>
+    <button class="txt-btn" id="lookBtn">LOOK · ANTIQUE</button>
+    <button class="txt-btn" id="fullscreenBtn">FULLSCREEN</button>
+    <button class="txt-btn" id="settingsBtn" aria-controls="settingsPanel" aria-expanded="false">SETTINGS</button>
+    <button class="txt-btn" id="installBtn" hidden>INSTALL APP</button>
+    <button class="txt-btn" id="resetBtn">RESET VIEW</button>
+    <button class="txt-btn mobile-only" id="modeBtn">MODE · EXPLORE</button>
+    <button class="txt-btn mobile-only" id="planetBtn" aria-controls="legend" aria-expanded="false">WANDERERS</button>
+    <button class="txt-btn" id="helpBtn" aria-controls="helpPanel" aria-expanded="false">HELP</button>
+  </div>
+  <button class="more-btn" id="moreBtn" aria-label="More controls" aria-controls="secondaryActions" aria-expanded="false">•••</button>
+</footer>
+
+<div class="hint">DRAG — SPIN · SCROLL — ZOOM · CLICK — FOLLOW · D — DATE · A — ALMANAC · ? — HELP</div>
+
+<div id="fail"><div class="box">
+  <h3 id="failTitle">The mechanism jammed.</h3>
+  <p>An error stopped the orrery. Send the text below back and it can be repaired.</p>
+  <code id="failMsg"></code>
+  <div class="fail-actions"><button type="button" id="reloadBtn">RELOAD</button><button type="button" id="diagBtn">COPY DIAGNOSTICS</button></div>
+</div></div>
+
+<section class="tool-panel date-panel" id="datePanel" aria-labelledby="datePanelTitle">
+  <div class="tool-head"><h2 id="datePanelTitle">Time & date</h2><button class="tool-close" id="dateClose" type="button" aria-label="Close date controls">×</button></div>
+  <label class="field-label" for="dateInput">DATE <span>YYYY-MM-DD</span></label>
+  <div class="date-entry"><input id="dateInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false"/><input id="timeInput" class="time-input" type="time" step="60" aria-label="UTC time"/><button id="dateGo" type="button">GO</button><button id="dateToday" type="button">NOW</button></div>
+  <div class="time-note">Simulation time is UTC. Observer results can use a separate local UTC offset.</div>
+  <div class="timeline-head"><label for="timelineSpan">TIMELINE WINDOW</label><select id="timelineSpan"><option value="30">30 DAYS</option><option value="730" selected>2 YEARS</option><option value="7305">20 YEARS</option><option value="73050">200 YEARS</option></select></div>
+  <input id="timeline" class="timeline" type="range" min="0" max="1000" value="500" aria-label="Timeline around selected date"/>
+  <div class="timeline-labels"><span id="timelineStart"></span><b id="timelineCenter"></b><span id="timelineEnd"></span></div>
+  <div class="date-step-row" aria-label="Date step controls"><button data-step="-365">−1Y</button><button data-step="-30">−1M</button><button data-step="-1">−1D</button><button data-step="1">+1D</button><button data-step="30">+1M</button><button data-step="365">+1Y</button></div>
+</section>
+
+<section class="tool-panel settings-panel" id="settingsPanel" aria-labelledby="settingsTitle">
+  <div class="tool-head"><h2 id="settingsTitle">Settings</h2><button class="tool-close" id="settingsClose" type="button" aria-label="Close settings">×</button></div>
+  <label class="setting-row"><span><b>Remember view</b><small>Restore date, speed, camera and selected world next time.</small></span><input id="rememberViewSetting" type="checkbox"/></label>
+  <label class="setting-row"><span><b>Auto-hide interface</b><small>Fade controls after four seconds of inactivity.</small></span><input id="autoHideSetting" type="checkbox"/></label>
+  <label class="setting-row"><span><b>Start paused</b><small>New visits begin with the mechanism stopped unless a shared link says otherwise.</small></span><input id="startPausedSetting" type="checkbox"/></label>
+  <label class="setting-row"><span><b>Show Pluto layer</b><small>Include Pluto's approximate orbit and body on the plate.</small></span><input id="showPlutoSetting" type="checkbox"/></label>
+  <div class="settings-subhead">VISUAL APPEARANCE</div>
+  <label class="setting-select-row"><span><b>Rendering look</b><small>Antique preserves the hand-tinted plate; Natural uses a dark-space presentation and stronger physical lighting.</small></span><select id="appearanceSetting"><option value="antique">ANTIQUE</option><option value="natural">NATURAL</option></select></label>
+  <label class="setting-select-row"><span><b>Label density</b><small>Smart avoids collisions; Minimal keeps only selected/hovered labels; All attempts every visible body.</small></span><select id="labelSetting"><option value="minimal">MINIMAL</option><option value="smart">SMART</option><option value="all">ALL</option></select></label>
+  <label class="setting-row"><span><b>Show ecliptic plane</b><small>Display a faint perspective grid in 3D view for orbital depth.</small></span><input id="showEclipticSetting" type="checkbox"/></label>
+  <label class="setting-row"><span><b>Show motion trails</b><small>Draw fading recent-path trails behind moving bodies.</small></span><input id="showTrailsSetting" type="checkbox"/></label>
+  <div class="settings-subhead">PRECISION SERVICE</div>
+  <label class="field-label" for="precisionEndpointSetting">HORIZONS PROXY ENDPOINT <span>optional</span></label>
+  <input class="settings-text" id="precisionEndpointSetting" type="url" inputmode="url" autocomplete="url" placeholder="https://your-worker.example/v1"/>
+  <p class="settings-note compact">JPL Horizons cannot be called directly from a static browser app. Configure the included read-only precision proxy to enable online precision mode. Precision requests send the selected target, date/time, and observer coordinates to that proxy and NASA/JPL; offline astronomy always remains available.</p>
+  <div class="settings-actions"><button id="precisionCheckBtn" type="button">CHECK PRECISION SERVICE</button><button id="resetPrefsBtn" type="button">RESET PREFERENCES</button></div>
+  <p class="settings-note">Preferences stay on this device. The Orrery has no account, analytics, or cloud sync.</p>
+</section>
+
+<section class="tool-panel observer-panel" id="observerPanel" aria-labelledby="observerTitle">
+  <div class="tool-head"><h2 id="observerTitle">Observer</h2><button class="tool-close" id="observerClose" type="button" aria-label="Close observer mode">×</button></div>
+  <p class="panel-intro">Planning-grade offline sky coordinates. Planet positions use JPL approximate elements; Moon and horizon calculations use analytical approximations.</p>
+  <label class="field-label" for="observerTarget">TARGET</label>
+  <select class="wide-select" id="observerTarget"></select>
+  <div class="observer-loc-grid">
+    <label>LATITUDE<input id="observerLat" type="number" min="-90" max="90" step="0.0001" inputmode="decimal"/></label>
+    <label>LONGITUDE<input id="observerLon" type="number" min="-180" max="180" step="0.0001" inputmode="decimal"/></label>
+    <label>UTC OFFSET<input id="observerOffset" type="number" min="-12" max="14" step="0.25" inputmode="decimal"/></label>
+  </div>
+  <div class="observer-actions"><button id="useLocationBtn" type="button">USE MY LOCATION</button><button id="followObserverTarget" type="button">FOLLOW TARGET</button></div>
+  <div class="observer-status" id="observerVisibility">Choose a location to calculate the sky.</div>
+  <div class="observer-data" aria-live="polite">
+    <div><span>LOCAL TIME</span><b id="obsLocalTime">—</b></div><div><span>RA / DEC</span><b id="obsRaDec">—</b></div>
+    <div><span>ALT / AZ</span><b id="obsAltAz">—</b></div><div><span>DISTANCE</span><b id="obsDistance">—</b></div>
+    <div><span>MAGNITUDE</span><b id="obsMagnitude">—</b></div><div><span>PHASE</span><b id="obsPhase">—</b></div>
+    <div><span>RISE</span><b id="obsRise">—</b></div><div><span>TRANSIT</span><b id="obsTransit">—</b></div>
+    <div><span>SET</span><b id="obsSet">—</b></div><div><span>BEST TONIGHT</span><b id="obsBest">—</b></div>
+  </div>
+  <div class="precision-block" id="precisionBlock">
+    <div class="precision-head"><div><span class="precision-kicker">JPL HORIZONS</span><b>Precision ephemeris</b></div><span class="precision-badge" id="precisionBadge">OFFLINE</span></div>
+    <p class="precision-copy">Optional online data uses apparent topocentric Horizons observables with light-time, stellar aberration, precession/nutation and JPL physical-aspect quantities. Fetching precision data sends the current observer coordinates, time and target to the configured proxy and NASA/JPL. Offline values above remain the fallback.</p>
+    <div class="precision-target-row"><label>PRECISION TARGET<select id="precisionTarget"></select></label><label>SMALL BODY / HORIZONS COMMAND<input id="precisionCommand" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. Apophis; or 1P"/></label></div>
+    <div class="precision-actions"><button id="precisionLookupBtn" type="button">LOOK UP TARGET</button><button id="precisionRefresh" type="button">FETCH PRECISION DATA</button><button id="precisionElementsBtn" type="button">ORBITAL ELEMENTS</button></div>
+    <div id="precisionLookupResults" class="precision-lookup-results" hidden></div>
+    <div class="precision-status" id="precisionStatus">Configure a precision endpoint in Settings to enable Horizons.</div>
+    <div class="precision-data" id="precisionData" hidden>
+      <div><span>APPARENT RA / DEC</span><b id="precRaDec">—</b></div><div><span>APPARENT ALT / AZ</span><b id="precAltAz">—</b></div>
+      <div><span>RANGE</span><b id="precRange">—</b></div><div><span>RANGE RATE</span><b id="precRangeRate">—</b></div>
+      <div><span>LIGHT TIME</span><b id="precLightTime">—</b></div><div><span>MAGNITUDE</span><b id="precMagnitude">—</b></div>
+      <div><span>ILLUMINATION</span><b id="precIllum">—</b></div><div><span>ANGULAR DIAMETER</span><b id="precDiameter">—</b></div>
+      <div><span>SOLAR ELONGATION</span><b id="precElong">—</b></div><div><span>PHASE ANGLE</span><b id="precPhase">—</b></div>
+      <div><span>CONSTELLATION</span><b id="precConstellation">—</b></div><div><span>SKY MOTION</span><b id="precSkyMotion">—</b></div>
+    </div>
+    <details class="precision-elements" id="precisionElements"><summary>ADVANCED ORBITAL DATA</summary><div id="precisionElementsData" class="precision-elements-data">Fetch orbital elements for the selected target.</div></details>
+    <div class="precision-events">
+      <div class="precision-event-head"><b>PRECISION EVENT SCAN</b><span>±7 days</span></div>
+      <select id="precisionEventType" aria-label="Precision event type"><option value="auto">AUTO FOR TARGET</option><option value="solar-eclipse">SOLAR ECLIPSE</option><option value="solar-transit">MERCURY / VENUS TRANSIT</option><option value="satellite">SATELLITE TRANSIT / OCCULTATION / ECLIPSE</option><option value="occultation">MOON OCCULTATION</option></select>
+      <button id="precisionEventScan" type="button">SCAN AROUND CURRENT DATE</button>
+      <div id="precisionEventResults" class="precision-event-results">No precision event scan yet.</div>
+    </div>
+    <div class="precision-export"><button id="precisionExportJson" type="button" disabled>EXPORT JSON</button><button id="precisionExportCsv" type="button" disabled>EXPORT CSV</button></div>
+  </div>
+  <p class="observer-note">Azimuth is measured from north through east. Offline rise/set is analytical and intended for planning. Precision mode uses JPL Horizons through the separately deployed read-only proxy.</p>
+</section>
+
+<section class="tool-panel learn-panel" id="learnPanel" aria-labelledby="learnTitle">
+  <div class="tool-head"><h2 id="learnTitle">Learn</h2><button class="tool-close" id="learnClose" type="button" aria-label="Close learning mode">×</button></div>
+  <p class="panel-intro">Use the live mechanism as a guided diagram. Pick a concept, then run its demonstration.</p>
+  <div class="learn-topics" id="learnTopics">
+    <button type="button" data-topic="ellipses">KEPLER I · ELLIPSES</button>
+    <button type="button" data-topic="areas">KEPLER II · SPEED</button>
+    <button type="button" data-topic="phases">PLANETARY PHASES</button>
+    <button type="button" data-topic="opposition">OPPOSITION</button>
+    <button type="button" data-topic="retrograde">RETROGRADE</button>
+    <button type="button" data-topic="seasons">SEASONS</button>
+    <button type="button" data-topic="scale">SOLAR-SYSTEM SCALE</button>
+  </div>
+  <article class="learn-content" id="learnContent"><span class="learn-kicker">SELECT A CONCEPT</span><h3>The plate can teach as well as display.</h3><p>Each lesson changes only temporary view state. Your saved preferences remain untouched.</p></article>
+  <button class="learn-demo" id="learnDemo" type="button" disabled>DEMONSTRATE</button>
+</section>
+
+<div class="education-banner" id="educationBanner" hidden><b id="educationTitle"></b><span id="educationText"></span><button id="educationDismiss" type="button" aria-label="Dismiss lesson overlay">×</button></div>
+
+<section class="onboarding" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboardTitle" hidden>
+  <div class="onboard-box">
+    <div class="onboard-step" data-onboard="0"><span class="onboard-kicker">I · MOVE THE PLATE</span><h2 id="onboardTitle">Explore the Solar System</h2><p>Drag to rotate. Scroll or pinch to zoom. The orbit drawing is compressed so the inner and outer worlds can share one plate.</p></div>
+    <div class="onboard-step" data-onboard="1" hidden><span class="onboard-kicker">II · FOLLOW A WORLD</span><h2>Select any wanderer</h2><p>Choose a planet on the plate or from WANDERERS. Its orbit is highlighted and the information card follows its current state.</p></div>
+    <div class="onboard-step" data-onboard="2" hidden><span class="onboard-kicker">III · TURN TIME</span><h2>Move through days or centuries</h2><p>Use the speed control in either direction, click the date for the timeline, or open ALMANAC to jump directly to an event.</p></div>
+    <div class="onboard-actions"><button id="onboardSkip" type="button">SKIP</button><span id="onboardDots" aria-hidden="true">● ○ ○</span><button id="onboardNext" type="button">NEXT</button></div>
+  </div>
+</section>
+
+<section class="help-panel" id="helpPanel" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="help-box">
+    <div class="help-top"><h2 id="helpTitle">Operating the Orrery</h2><button class="help-close" id="helpClose" type="button" aria-label="Close help">×</button></div>
+    <div class="help-grid">
+      <div><h3>Mouse & touch</h3><p>Use EXPLORE for the heliocentric plate, OBSERVE for local sky coordinates, and LEARN for guided demonstrations.</p><p>Drag the plate to rotate it. Scroll or pinch to zoom. Select a world to follow it; select it again to release the camera.</p><p>The drawn orbit radii are logarithmically compressed so all eight planets fit on one plate. Event calculations use physical JPL-based coordinates instead.</p><div class="orbit-key"><i></i> Followed orbit + apsides/nodes</div></div>
+      <div><h3>Keyboard</h3><div class="shortcut"><span>Rotate</span><kbd>← →</kbd></div><div class="shortcut"><span>Zoom</span><kbd>↑ ↓</kbd></div><div class="shortcut"><span>Step date</span><kbd>PgUp/Dn</kbd></div><div class="shortcut"><span>Pause / play</span><kbd>Space</kbd></div><div class="shortcut"><span>Cycle bodies</span><kbd>[ ]</kbd></div><div class="shortcut"><span>Time panel</span><kbd>D</kbd></div><div class="shortcut"><span>Almanac</span><kbd>A</kbd></div><div class="shortcut"><span>Today</span><kbd>T</kbd></div><div class="shortcut"><span>Reset view</span><kbd>R</kbd></div><div class="shortcut"><span>Help</span><kbd>?</kbd></div></div>
+    </div>
+    <div class="help-foot">THE ORRERY · v1.4.0 · offline-first PWA · optional JPL Horizons precision service · offline observer engine remains the fallback.</div>
+  </div>
+</section>
+<div id="testPanel" class="test-panel" hidden aria-live="polite"></div>
+
+<script>
+window.__ok = false;
+setTimeout(function(){
+  if(!window.__ok){
+    var f=document.getElementById('fail'),m=document.getElementById('failMsg');
+    if(m) m.textContent='The engine script never started. The file is likely truncated - it should end with </html>.';
+    if(f) f.classList.add('show');
+  }
+},6000);
+</script>
+
+<script>
+/*__APP_JS__*/
+</script>
+</body>
+</html>

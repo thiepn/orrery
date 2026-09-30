@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const template=fs.readFileSync(path.join(root,'src','index.template.html'),'utf8');
+const css=fs.readFileSync(path.join(root,'src','app.css'),'utf8').replace(/\n$/,'');
+const js=fs.readFileSync(path.join(root,'src','app.js'),'utf8').replace(/\n$/,'');
+if(!template.includes('/*__APP_CSS__*/')||!template.includes('/*__APP_JS__*/')) throw new Error('Template placeholders missing');
+const out=template.replace('/*__APP_CSS__*/',css).replace('/*__APP_JS__*/',js);
+fs.writeFileSync(path.join(root,'index.html'),out);
+console.log(`Built index.html (${out.length} bytes)`);

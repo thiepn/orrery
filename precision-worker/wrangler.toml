@@ -1,0 +1,8 @@
+name = "the-orrery-precision"
+main = "worker.js"
+compatibility_date = "2026-09-30"
+
+[vars]
+# Set this to the exact production origin for a private deployment, for example:
+# ALLOWED_ORIGIN = "https://example.com"
+ALLOWED_ORIGIN = "*"
